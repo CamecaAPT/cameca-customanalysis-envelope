@@ -15,4 +15,10 @@ internal class EnvelopeNode : LegacyCustomAnalysisNodeBase<EnvelopeAnalysis, Env
         : base(services, analysis)
     {
     }
+
+    protected override void OnAdded(NodeAddedEventArgs eventArgs)
+    {
+        base.OnAdded(eventArgs);
+        Analysis.ID = eventArgs.NodeId;
+    }
 }

@@ -31,12 +31,23 @@
 	</PropertyGroup>
 
 	<ItemGroup Label="Package Dependencies">
-		<PackageReference Include="Cameca.CustomAnalysis.Utilities" Version="3.2.0" />
+		<PackageReference Include="Cameca.CustomAnalysis.Utilities" Version="3.4.0-alpha.1" />
 	</ItemGroup>
 
-	<ItemGroup>
+	<!--Special settings to ensure deterministic builds using GitHub actions-->
+	<PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+		<!--Version of this package may need to be updated over time-->	
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+		<Deterministic>true</Deterministic>
+	</PropertyGroup>
+
+	<ItemGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
 	</ItemGroup>
 
+	<!--This is a bit of a kludge to keep the nuspec file static and reusable for any project-->
+	<!--All elements of the nuspec are parameterized and set from internal project properties set in this file or automatically generated-->
+	<!--Note we can't use the new generate directly from csproj file, as the nuspec is still specially configured to include extra build output-->
 	<!-- Nuspec Initiaization and Configuration -->
 	<Target Name="InitializeStandardNuspecProperties" BeforeTargets="GenerateNuspec" Condition="'$(IsPackable)' == 'true'">
 		<PropertyGroup Condition="'$(NuspecFile)' != '' and '$(NuspecProperties)' == ''">
@@ -47,6 +58,9 @@
 				description=$(Description);
 				title=$(Title);
 				copyright=$(Copyright);
+				readme=$(PackageReadmeFile);
+				license=$(PackageLicenseFile);
+				icon=$(PackageIcon);
 				repoType=$(RepositoryType);
 				repoUrl=$(RepositoryUrl);
 				projectUrl=$(RepositoryUrl);
