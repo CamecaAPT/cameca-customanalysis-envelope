@@ -27,7 +27,7 @@
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<IncludeBuildOutput>true</IncludeBuildOutput>
-		<NuspecFile>Envelope.nuspec</NuspecFile>
+		<NuspecFile>Package.nuspec</NuspecFile>
 	</PropertyGroup>
 
 	<ItemGroup Label="Package Dependencies">
