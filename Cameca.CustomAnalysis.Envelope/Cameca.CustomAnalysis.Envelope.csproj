@@ -1,0 +1,59 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0-windows7.0</TargetFramework>
+		<UseWPF>true</UseWPF>
+		<Platforms>x64</Platforms>
+		<Nullable>enable</Nullable>
+		<EnableDynamicLoading>true</EnableDynamicLoading>
+		<RuntimeIdentifier>win10-x64</RuntimeIdentifier>
+		<SelfContained>false</SelfContained>
+		<AssemblyName>Cameca.CustomAnalysis.Envelope</AssemblyName>
+	</PropertyGroup>
+
+	<PropertyGroup Label="Direct Output" Condition="'$(Configuration)' == 'Debug'">
+		<OutputPath>$(LOCALAPPDATA)\CAMECA\AP Suite\Extensions\$(AssemblyName)</OutputPath>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+	</PropertyGroup>
+
+	<PropertyGroup Label="Package">
+		<Title>Envelope</Title>
+		<Authors>CAMECA Instruments Inc.</Authors>
+		<Description>Envelope and Clustering Algorithm Based on M. K. Miller's Enveloping Algorithm</Description>
+		<Copyright>Copyright © CAMECA Instruments Inc. 2023 All rights reserved.</Copyright>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<IncludeBuildOutput>true</IncludeBuildOutput>
+		<NuspecFile>Envelope.nuspec</NuspecFile>
+	</PropertyGroup>
+
+	<ItemGroup Label="Package Dependencies">
+		<PackageReference Include="Cameca.CustomAnalysis.Utilities" Version="3.2.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	</ItemGroup>
+
+	<!-- Nuspec Initiaization and Configuration -->
+	<Target Name="InitializeStandardNuspecProperties" BeforeTargets="GenerateNuspec" Condition="'$(IsPackable)' == 'true'">
+		<PropertyGroup Condition="'$(NuspecFile)' != '' and '$(NuspecProperties)' == ''">
+			<NuspecProperties>
+				id=$(AssemblyName);
+				version=$(Version);
+				authors=$(Authors);
+				description=$(Description);
+				title=$(Title);
+				copyright=$(Copyright);
+				repoType=$(RepositoryType);
+				repoUrl=$(RepositoryUrl);
+				projectUrl=$(RepositoryUrl);
+				repoCommit=$(RepositoryCommit);
+				tfw=$(TargetFramework);
+				outDir=$(MSBuildThisFileDirectory)$(OutputPath)
+			</NuspecProperties>
+		</PropertyGroup>
+	</Target>
+</Project>
