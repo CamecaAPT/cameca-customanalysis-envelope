@@ -44,6 +44,13 @@
 	<ItemGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
 	</ItemGroup>
+	
+	<!--Include static resource files for the NuGet pacakge-->
+	<ItemGroup>
+		<None Include="..\Cameca.png" Pack="True" PackagePath="$(PackageIcon)" />
+		<None Include="..\README.md" Pack="True" PackagePath="$(PackageReadmeFile)" />
+		<None Include="..\LICENSE" Pack="True" PackagePath="$(PackageLicenseFile)" />
+	</ItemGroup>
 
 	<!--This is a bit of a kludge to keep the nuspec file static and reusable for any project-->
 	<!--All elements of the nuspec are parameterized and set from internal project properties set in this file or automatically generated-->
