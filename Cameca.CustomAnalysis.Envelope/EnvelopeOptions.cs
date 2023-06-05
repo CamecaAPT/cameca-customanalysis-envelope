@@ -5,7 +5,7 @@ namespace Cameca.CustomAnalysis.Envelope;
 
 public class EnvelopeOptions : BindableBase
 {
-    private string? rangeStr;
+    private string rangeStr = "";
     [Display(Name = "Range Indices", Description = "One or more range indexes separated by spaces.")]
     public string RangeStr
     {
