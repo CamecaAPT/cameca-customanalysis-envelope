@@ -881,61 +881,44 @@ internal class EnvelopeAnalysis : ICustomAnalysis<EnvelopeOptions>
 
         while (ionIndexList.Count > 0)
         {
-            clusterList.Add(DFSSearch(adjacencyList, ionIndexList[0], ionIndexList, visitedNodes));
+            clusterList.Add(BFSSearch(adjacencyList, ionIndexList[0], ionIndexList, visitedNodes));
         }
 
         return clusterList;
     }
 
-
-
-    //the list of ints being returned here is essentially the index of the ions in the cluster
-
     /// <summary>
-    /// Runs a Depth First Search on a graph given an adjacency list and an initial node to start from,
-    /// creating a list of all visited nodes (the cluster)
+    /// Runs a Breadth First Search on a graph
     /// </summary>
-    /// <param name="adjacencyList">An adjacency list representing the structure of the graph</param>
-    /// <param name="ionToSearchIndex">The ion to start the DFS on initially</param>
-    /// <param name="ionIndexList">A list of ints representing the indexes of the ions</param>
-    /// <returns></returns>
-    static List<int> DFSSearch(List<int>[] adjacencyList, int ionToSearchIndex, List<int> ionIndexList, bool[] visitedNodes)
+    /// <param name="adjacencyList">The adjacency list of the graph (the graph structure)</param>
+    /// <param name="ionToSearchIndex">The initial ion's index to start the search from</param>
+    /// <param name="ionIndexList">List of all ions being searched on (their indexes)</param>
+    /// <param name="visitedNodes">Boolean array keeping track of which ions have been visited</param>
+    /// <returns>A list of integers representing the cluster, where the ints are the indexes of the ions</returns>
+    static List<int> BFSSearch(List<int>[] adjacencyList, int ionToSearchIndex, List<int> ionIndexList, bool[] visitedNodes)
     {
-        List<int> toRet = new();
+        List<int> clusterList = new();
+        Queue<int> queue = new();
+        queue.Enqueue(ionToSearchIndex);
 
-        DFSSearchHelper(adjacencyList, ionToSearchIndex, toRet, visitedNodes, ionIndexList);
-
-        return toRet;
-    }
-
-    /// <summary>
-    /// Recursive method implementing a Depth First Search
-    /// </summary>
-    /// <param name="adjacencyList">An adjancency list representing the structure of the graph</param>
-    /// <param name="ionToSearchIndex">A list of its containing the indexes of ions being searched on</param>
-    /// <param name="toRet">The list of ions corresponding to this cluster</param>
-    /// <param name="visitedNodes">A dictionary containing the nodes this search has already been to to prevent revisiting nodes</param>
-    /// <param name="ionIndexList">A list of ints corresponding to the indexes of the ions being searched on</param>
-    static void DFSSearchHelper(List<int>[] adjacencyList, int ionToSearchIndex, List<int> toRet, bool[] visitedNodes, List<int> ionIndexList)
-    {
-        toRet.Add(ionToSearchIndex);
-        visitedNodes[ionToSearchIndex] = true;
-        //may want some way to not do the same vertex twice
-        ionIndexList.Remove(ionToSearchIndex); // ^ thats what this is
-        Stack<int> edgeStack = new();
-        foreach (int newIonIndex in adjacencyList[ionToSearchIndex])
+        while (queue.Count > 0)
         {
-            if (!visitedNodes[newIonIndex])
-                edgeStack.Push(newIonIndex);
-        }
-        while (edgeStack.Count > 0)
-        {
-            int newIonIndex = edgeStack.Pop();
-            if (!visitedNodes[newIonIndex])
-                DFSSearchHelper(adjacencyList, newIonIndex, toRet, visitedNodes, ionIndexList);
-        }
-    }
+            int currIon = queue.Dequeue();
+            if (visitedNodes[currIon]) continue;
 
+            visitedNodes[currIon] = true;
+            clusterList.Add(currIon);
+            ionIndexList.Remove(currIon);
+            foreach(int nextIon in adjacencyList[currIon])
+            {
+                if (visitedNodes[nextIon]) continue;
+                queue.Enqueue(nextIon);
+            }
+        }
+
+
+        return clusterList;
+    }
 
     /// <summary>
     /// Creates the graph structure given a list of ions selected and a max separation value
