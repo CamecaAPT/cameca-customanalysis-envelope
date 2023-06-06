@@ -34,7 +34,7 @@
 	</PropertyGroup>
 
 	<ItemGroup Label="Package Dependencies">
-		<PackageReference Include="Cameca.CustomAnalysis.Utilities" Version="3.4.0-alpha.1" />
+		<PackageReference Include="Cameca.CustomAnalysis.Utilities" Version="3.3.0" />
 	</ItemGroup>
 
 	<!--Special settings to ensure deterministic builds using GitHub actions-->
