@@ -65,12 +65,15 @@ internal class EnvelopeAnalysis : ICustomAnalysis<EnvelopeOptions>
         /*
          * XYZ Limits Section
          */
-        outBuilder.AppendLine(GetLimits(ionData, viewBuilder));
+        var message = GetLimits(ionData, viewBuilder, options.AtomSeparation);
+        if (message == null)
+            return;
+        outBuilder.AppendLine(message);
 
         /*
          * Cluster Section
          */
-        (var selectedIonList, var ionIndexList, var ionToIonTypeDict, var message, var unrangedCount) = GetSelectedIons(ionData, ranges);
+        (var selectedIonList, var ionIndexList, var ionToIonTypeDict, message, var unrangedCount) = GetSelectedIons(ionData, ranges);
         outBuilder.AppendLine(message);
         var adjacencyList = CreateAdjacencyList(selectedIonList, options.AtomSeparation, ionData);
         //cluster list is a list of lists of ints. Each list is a cluster, and inside the cluster list, each int is the index that corresponds to 
@@ -763,7 +766,7 @@ internal class EnvelopeAnalysis : ICustomAnalysis<EnvelopeOptions>
     /// <param name="ionData">IIonData object used to examine ion data</param>
     /// <param name="viewBuilder">IViewBuilder object to construct the table and add to it</param>
     /// <returns>A formatted string that includes the Min and Max point extents</returns>
-    private static string GetLimits(IIonData ionData, IViewBuilder viewBuilder)
+    private static string GetLimits(IIonData ionData, IViewBuilder viewBuilder, float atomSeparation)
     {
         StringBuilder sb = new();
         List<LimitsRow> limitsRows = new();
@@ -771,6 +774,16 @@ internal class EnvelopeAnalysis : ICustomAnalysis<EnvelopeOptions>
         var max = ionData.Extents.Max;
         var min = ionData.Extents.Min;
         var diff = max - min;
+
+        int numX = (int)((max.X - min.X) / atomSeparation) + 1;
+        int numY = (int)((max.Y - min.Y) / atomSeparation) + 1;
+        int numZ = (int)((max.Z - min.Z) / atomSeparation) + 1;
+
+        if(numX * numY * numZ > 120_000_000)
+        {
+            MessageBox.Show("Atom separation too fine. Choose a bigger voxel size. ");
+            return null;
+        }
 
         string minX = min.X.ToString($"f{ROUNDING_LENGTH}");
         string maxX = max.X.ToString($"f{ROUNDING_LENGTH}");
