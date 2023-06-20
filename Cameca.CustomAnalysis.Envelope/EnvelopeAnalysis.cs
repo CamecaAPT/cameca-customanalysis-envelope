@@ -9,6 +9,7 @@ using System.Text;
 using System.Windows;
 using System;
 using System.Windows.Media;
+using Cameca.CustomAnalysis.Envelope;
 
 namespace Cameca.CustomAnalysis.Envelope;
 
@@ -294,7 +295,8 @@ internal class EnvelopeAnalysis : ICustomAnalysis<EnvelopeOptions>
             }
         }
 
-        Color randColor = Color.FromRgb((byte)random.Next(255), (byte)random.Next(255), (byte)random.Next(255));
+        //Color randColor = Color.FromRgb((byte)random.Next(255), (byte)random.Next(255), (byte)random.Next(255));
+        var randColor = random.NextColor();
         graph.AddSurface(xPosList.ToArray(), yPosList.ToArray(), zPosList.ToArray(), indexList.ToArray(), randColor);
     }
 
@@ -326,7 +328,8 @@ internal class EnvelopeAnalysis : ICustomAnalysis<EnvelopeOptions>
         foreach (List<Vector3> envelope in envelopeIonList)
         {
             (var xVals, var yVals, var zVals) = GetPointsFromEnvelope(envelope);
-            Color randomColor = Color.FromArgb(255, (byte)random.Next(255), (byte)random.Next(255), (byte)random.Next(255));
+            //Color randomColor = Color.FromArgb(255, (byte)random.Next(255), (byte)random.Next(255), (byte)random.Next(255));
+            var randomColor = random.NextColor();
             chart.AddPoints(xVals, yVals, zVals, randomColor);
         }
     }
