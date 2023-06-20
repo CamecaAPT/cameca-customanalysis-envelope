@@ -766,7 +766,7 @@ internal class EnvelopeAnalysis : ICustomAnalysis<EnvelopeOptions>
     /// <param name="ionData">IIonData object used to examine ion data</param>
     /// <param name="viewBuilder">IViewBuilder object to construct the table and add to it</param>
     /// <returns>A formatted string that includes the Min and Max point extents</returns>
-    private static string GetLimits(IIonData ionData, IViewBuilder viewBuilder, float atomSeparation)
+    private static string? GetLimits(IIonData ionData, IViewBuilder viewBuilder, float atomSeparation)
     {
         StringBuilder sb = new();
         List<LimitsRow> limitsRows = new();
