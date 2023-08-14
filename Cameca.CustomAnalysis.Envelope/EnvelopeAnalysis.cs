@@ -10,6 +10,7 @@ using System.Windows;
 using System;
 using System.Windows.Media;
 using Cameca.CustomAnalysis.Envelope;
+using System.Windows.Controls;
 
 namespace Cameca.CustomAnalysis.Envelope;
 
@@ -24,13 +25,13 @@ internal class EnvelopeAnalysis : ICustomAnalysis<EnvelopeOptions>
     /*
      * Service Injection into the constructor
      */
-    private readonly IMassSpectrumRangeManagerProvider _massSpectrumRangeManagerProvider;
 
-    public EnvelopeAnalysis(IMassSpectrumRangeManagerProvider massSpectrumRangeManagerProvider)
+    public EnvelopeAnalysis()
     {
-        _massSpectrumRangeManagerProvider = massSpectrumRangeManagerProvider;
+        ionNames = new();
     }
 
+    private List<string> ionNames;
 
     /// <summary>
     /// Main custom analysis execution method.
@@ -46,13 +47,13 @@ internal class EnvelopeAnalysis : ICustomAnalysis<EnvelopeOptions>
     /// <param name="viewBuilder">Defines how the result will be represented in AP Suite</param>
     public void Run(IIonData ionData, EnvelopeOptions options, IViewBuilder viewBuilder)
     {
+        var ionTypesDict = ExtensionUtils.GetIonTypes(ionData, false);
+        ionNames = ionTypesDict.Keys.ToList();
+
         //Check for good input
-        (bool didParse, List<byte> ranges) = ParseRangeInput(options.RangeStr, _massSpectrumRangeManagerProvider);
+        (bool didParse, List<byte> ranges) = ParseRangeInput(options.IonsOfInterest.ToList());
         if (!didParse)
-        {
-            MessageBox.Show("Bad Range input. Separate indexes with spaces");
             return;
-        }
 
         //output string for the text
         StringBuilder outBuilder = new();
@@ -704,31 +705,52 @@ internal class EnvelopeAnalysis : ICustomAnalysis<EnvelopeOptions>
     /// </summary>
     /// <param name="rangeStr">string formatted like "2 5 3" where 2,5, and 3 are all ranges in the user specified ranges</param>
     /// <returns>returns a boolean for good user input and a list of the ranges</returns>
-    private (bool, List<byte>) ParseRangeInput(string rangeStr, IMassSpectrumRangeManagerProvider massSpectrumRangeManagerProvider)
+    private (bool, List<byte>) ParseRangeInput(List<string> rangeList)
     {
-        var massSpectrumRangeManager = massSpectrumRangeManagerProvider.Resolve(ID)!;
-        var ionInfoRangeDict = massSpectrumRangeManager.GetRanges();
-        var rawRanges = rangeStr.Split(" ");
         List<byte> toRet = new();
+        List<string> badInputs = new();
+        bool inputGood = true;
 
-        var rangeList = ionInfoRangeDict.Values.ToList();
-
-        for (int i = 0; i < rawRanges.Length; i++)
+        foreach (var range in rangeList)
         {
-            int currRangeInt;
-            try
+            var index = ionNames.IndexOf(range);
+            if(index == -1)
             {
-                currRangeInt = Int32.Parse(rawRanges[i]);
+                inputGood = false;
+                badInputs.Add(range);
             }
-            catch
-            {
-                return (false, new List<byte>());
-            }
-            if (currRangeInt > rangeList.Count || currRangeInt < 1)
-                return (false, new List<byte>());
-            toRet.Add((byte)(currRangeInt - 1));
+            else
+                toRet.Add((byte)index);
         }
-        return (true, toRet);
+
+
+        if(inputGood)
+            return (inputGood, toRet);
+        else
+        {
+            StringBuilder sb = new();
+
+            if (badInputs.Count == 2)
+                sb.Append($"{badInputs[0]} and {badInputs[1]}");
+            else
+                for(int i=0; i<badInputs.Count; i++)
+                {
+                    sb.Append(badInputs[i]);
+                    if(i + 2 < badInputs.Count)
+                        sb.Append(", ");
+                    else if(i + 1 < badInputs.Count)
+                        sb.Append(", and ");
+                }
+
+            string message;
+            if (badInputs.Count == 1)
+                message = $"{sb} is not a valid ion in this dataset";
+            else
+                message = $"{sb} are not valid ions in this dataset";
+
+            MessageBox.Show(message);
+            return (false, new());
+        }
     }
 
     /// <summary>

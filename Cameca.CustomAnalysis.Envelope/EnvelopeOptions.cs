@@ -1,16 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Prism.Mvvm;
 
 namespace Cameca.CustomAnalysis.Envelope;
 
 public class EnvelopeOptions : BindableBase
 {
-    private string rangeStr = "";
-    [Display(Name = "Range Indices", Description = "One or more range indexes separated by spaces.")]
-    public string RangeStr
+    private HashSet<string> ionsOfInterest = new();
+    [Display(Name = "Ions of Interest", Description = "Ions to cluster and form envelopes around")]
+    public HashSet<string> IonsOfInterest
     {
-        get => rangeStr;
-        set => SetProperty(ref rangeStr, value);
+        get => ionsOfInterest;
+        set => SetProperty(ref ionsOfInterest, value);
     }
 
     private float atomSeparation;
