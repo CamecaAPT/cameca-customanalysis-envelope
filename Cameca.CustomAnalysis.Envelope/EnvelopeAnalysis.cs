@@ -371,7 +371,7 @@ internal class EnvelopeAnalysis : ICustomAnalysis<EnvelopeOptions>
     {
         StringBuilder sb = new();
         Dictionary<byte, ulong> allEnvelopes = new();
-        ulong totalAtomCount = ionData.IonCount - (ulong)unrangedIonCount;
+        ulong totalAtomCount = 0;// ionData.IonCount - (ulong)unrangedIonCount;
         var allIonsDict = ionData.GetIonTypeCounts();
         var nameToNumDict = numToNameDict.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
         List<CompositionRow> compositionRows = new();
@@ -391,10 +391,16 @@ internal class EnvelopeAnalysis : ICustomAnalysis<EnvelopeOptions>
         {
             foreach (KeyValuePair<byte, int> idToCount in envelope)
             {
-                allEnvelopes[idToCount.Key] -= (ulong)idToCount.Value;
-                totalAtomCount -= (ulong)idToCount.Value;
+                //this if/else is to prevent overlapping grid elements to be double counted
+                if ((ulong)idToCount.Value > allEnvelopes[idToCount.Key])
+                    allEnvelopes[idToCount.Key] = 0;
+                else
+                    allEnvelopes[idToCount.Key] -= (ulong)idToCount.Value;
             }
         }
+
+        foreach (var ionTypeCounts in allEnvelopes.Values)
+            totalAtomCount += ionTypeCounts;
 
         sb.AppendLine($"{envelopeList.Count} clusters found in {ionData.IonCount} atoms\n");
 
